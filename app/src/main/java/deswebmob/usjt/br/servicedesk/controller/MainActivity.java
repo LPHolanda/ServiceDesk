@@ -1,10 +1,12 @@
-package deswebmob.usjt.br.servicedesk;
+package deswebmob.usjt.br.servicedesk.controller;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+
+import deswebmob.usjt.br.servicedesk.R;
 
 public class MainActivity extends Activity {
     private EditText txtNome;
