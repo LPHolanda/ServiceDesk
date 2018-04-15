@@ -17,7 +17,7 @@ import deswebmob.usjt.br.servicedesk.model.ChamadoAdapter;
 import deswebmob.usjt.br.servicedesk.model.Data;
 
 public class ListarChamadosActivity extends Activity {
-    public static final String CHAMADO = "deswebmbo.usjt.br.servicedesk";
+    public static final String CHAMADO = "br.usjt.desenvmob.aula03.chamado";
     ArrayList<Chamado> chamados;
     ListView listView;
     Activity contexto;
@@ -26,19 +26,25 @@ public class ListarChamadosActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_listar_chamados);
-        Intent intent = getIntent();
-        String nomeFila = intent.getStringExtra(MainActivity.NOME);
-        chamados = Data.buscarChamados(nomeFila);
-        listView = findViewById(R.id.lista_chamados);
+        final Intent intent = getIntent();
+        chamados =(ArrayList<Chamado>)intent.getSerializableExtra(MainActivity.CHAMADO);
+
+        /*
+             String nomeFila = intent.getStringExtra(MainActivity.FILA);
+            try {
+            chamados = ChamadoNetwork.buscarChamados("http://10.0.2.2:8080/arqsw_sdesk_a4_remasterized/rest/chamados");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
+        listView = (ListView) findViewById(R.id.lista_chamados);
         ChamadoAdapter adapter = new ChamadoAdapter(this, chamados);
         listView.setAdapter(adapter);
         contexto = this;
-
         listView.setOnItemClickListener(
                 new AdapterView.OnItemClickListener(){
 
                     @Override
-                    public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                         Chamado chamado = chamados.get(position);
                         Intent intent1 = new Intent(contexto, DetalheChamadoActivity.class);
                         intent1.putExtra(CHAMADO, chamado);
