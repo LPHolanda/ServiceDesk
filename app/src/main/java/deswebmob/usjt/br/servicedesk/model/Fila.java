@@ -1,15 +1,18 @@
 package deswebmob.usjt.br.servicedesk.model;
 
+import android.graphics.Bitmap;
+
 import java.io.Serializable;
 
 /**
- * Created by Leandro Pinheiro de Holanda 816113762 on 21/03/2018.
+ * Created by Leandro Pinheiro de Holanda 816113762
  */
 
-class Fila implements Serializable{
+public class Fila implements Serializable {
     private int id;
     private String nome;
     private String figura;
+    private Bitmap imagem;
 
     public Fila(int id, String nome, String figura) {
         this.id = id;
@@ -19,6 +22,14 @@ class Fila implements Serializable{
 
     public Fila(){
 
+    }
+
+    public Bitmap getImagem() {
+        return imagem;
+    }
+
+    public void setImagem(Bitmap imagem) {
+        this.imagem = imagem;
     }
 
     public int getId() {
