@@ -10,16 +10,18 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import deswebmob.usjt.br.servicedesk.R;
+import deswebmob.usjt.br.servicedesk.controller.MainActivity;
 
 /**
  * Created by Leandro Pinheiro de Holanda on 21/03/2018.
  */
 
 public class ChamadoAdapter extends BaseAdapter{
-
     private Context context;
     private ArrayList<Chamado> chamados;
     private ArrayList<Fila> filas;
@@ -27,11 +29,7 @@ public class ChamadoAdapter extends BaseAdapter{
     public ChamadoAdapter(Context context, ArrayList<Chamado> chamados) {
         this.context = context;
         this.chamados = chamados;
-        try {
-            this.filas = ChamadoNetwork.get_filas(null, null);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        this.filas = MainActivity._filas;
     }
 
     @Override
@@ -45,48 +43,47 @@ public class ChamadoAdapter extends BaseAdapter{
     }
 
     @Override
-    public long getItemId(int i) {
-        return i;
+    public long getItemId(int position) {
+        return position;
     }
 
     @Override
-    public View getView(int position, View contentView, ViewGroup parent) {
-        View view = null;
+    public View getView(int position, View convertView, ViewGroup parent) {
+        View view = convertView;
+
         if(view == null) {
-            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater inflater = (LayoutInflater)
+                    context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             view = inflater.inflate(R.layout.linha_chamado, parent, false);
-            ImageView figura  = (ImageView) view.findViewById(R.id.imagem_fila);
+
+            ImageView imagem = (ImageView) view.findViewById(R.id.imagem_fila);
             TextView numero = (TextView) view.findViewById(R.id.numero_status_chamado);
             TextView datas = (TextView) view.findViewById(R.id.abertura_fechamento_chamado);
             TextView descricao = (TextView) view.findViewById(R.id.descricao_chamado);
-            ViewHolder v = new ViewHolder();
-            v.setData(datas);
-            v.setDescricao(descricao);
-            v.setImagem(figura);
-            v.setNumero(numero);
-            view.setTag(v);
+            ViewHolder viewHolder = new ViewHolder();
+            viewHolder.setNumero(numero);
+            viewHolder.setData(datas);
+            viewHolder.setDescricao(descricao);
+            viewHolder.setImagem(imagem);
+            view.setTag(viewHolder);
         }
-
 
         Chamado chamado = chamados.get(position);
-        ViewHolder v = (ViewHolder) view.getTag();
 
-        //v.getImagem().setImageDrawable(Util.getDrawableDinamic(context, chamado.getFila().getFigura()));
+        ViewHolder viewHolder = (ViewHolder)view.getTag();
 
-        v.getImagem().setImageBitmap(filas.get(getFila(chamado.getFila().getId())).getImagem());
-        v.getNumero().setText(String.format("numero: %d - status: %s", chamado.getNumero(), chamado.getStatus()));
-        v.getData().setText(String.format("abertura: %tD - fechamento: %tD", chamado.getDataAbertura(), chamado.getDataFechamento()));
-        v.getDescricao().setText(chamado.getDescricao());
+        try {
+            viewHolder.getImagem().setImageBitmap(filas.get(Fila.getFila(filas, chamado.getFila().getId())).getImagem());
+        } catch(Exception e){
+            viewHolder.getImagem().setImageDrawable(context.getDrawable(R.drawable.ic_not_found));
+        }
+        DateFormat formatter = new SimpleDateFormat(Chamado.DATE_PATTERN);
+        viewHolder.getNumero().setText(String.format("numero: %d - status:%s", chamado.getNumero(), chamado.getStatus()));
+        viewHolder.getData().setText(String.format("abertura: %s - fechamento: %s",
+                formatter.format(chamado.getDataAbertura()),
+                chamado.getDataFechamento() == null?" ":formatter.format(chamado.getDataFechamento())));
+        viewHolder.getDescricao().setText(chamado.getDescricao());
 
         return view;
-    }
-
-    private int getFila(int id){
-        for(int i = 0; i < filas.size(); i++){
-            if(filas.get(i).getId() == id){
-                return i;
-            }
-        }
-        return -1;
     }
 }

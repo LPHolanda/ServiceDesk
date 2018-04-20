@@ -2,6 +2,7 @@ package deswebmob.usjt.br.servicedesk.model;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -10,6 +11,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,24 +25,22 @@ import okhttp3.Response;
  */
 
 public class ChamadoNetwork {
-    public static ArrayList<Fila> _filas = null;
-
-    public static ArrayList<Fila> get_filas(String urlRest, String urlImg) throws IOException{
-        if (_filas == null){
-            _filas = buscarFilas(urlRest);
+    public static ArrayList<Fila> buscarFilas(String urlRest, String urlImg) throws IOException{
+        ArrayList<Fila> filas = getFilas(urlRest);
+        for(Fila fila:filas){
+            fila.setImagem(getFigura(urlImg+fila.getFigura()+".png"));
         }
-        for(Fila fila:_filas){
-            fila.setImagem(getFigura(urlImg));
-        }
-        return _filas;
+        return filas;
     }
-
-    private static final DateFormat formater  = new SimpleDateFormat("dd-MM-yyyy");
-
 
     public static ArrayList<Chamado> buscarChamados(String url) throws IOException {
         OkHttpClient client = new OkHttpClient();
+
+        Log.println(Log.DEBUG,"url chamados" , url);
+
         ArrayList<Chamado> chamados = new ArrayList<>();
+        DateFormat formatter = new SimpleDateFormat(Chamado.DATE_PATTERN);
+
         Request request = new Request.Builder()
                 .url(url)
                 .build();
@@ -48,52 +48,53 @@ public class ChamadoNetwork {
         Response response = client.newCall(request).execute();
         String json = response.body().string();
 
-        try{
-            JSONArray lista = new JSONArray(json);
+        Log.println(Log.DEBUG,"json chamados" , json);
 
-            for(int i=0; i < lista.length(); i++){
-                JSONObject item = (JSONObject)lista.get(i);
+        try {
+            JSONArray lista = new JSONArray(json);
+            for (int i = 0; i < lista.length(); i++) {
+                JSONObject item = (JSONObject) lista.get(i);
                 Chamado chamado = new Chamado();
                 chamado.setNumero(item.getInt("numero"));
+                chamado.setDescricao(item.getString("descricao"));
                 chamado.setStatus(item.getString("status"));
                 String sDataAbertura = (item.getString("dataAbertura"));
                 String sDataFechamento = (item.getString("dataFechamento"));
-               /* try {
-                    chamado.setDataAbertura((Date)formater.parse(sDataAbertura));
+                try {
+                    chamado.setDataAbertura((Date) formatter.parse(sDataAbertura));
                 } catch (ParseException e) {
-                    e.printStackTrace();
+                    chamado.setDataAbertura(null);
                 }
                 try {
-                    chamado.setDataFechamento((Date)formater.parse(sDataFechamento));
+                    chamado.setDataFechamento((Date) formatter.parse(sDataFechamento));
                 } catch (ParseException e) {
-                    e.printStackTrace();
-                }*/
-                chamado.setDataAbertura(new Date());
-                chamado.setDataFechamento(new Date());
-                JSONObject filaitem = item.getJSONObject("fila");
+                    chamado.setDataFechamento(null);
+                }
+                JSONObject filaItem = item.getJSONObject("fila");
                 Fila fila = new Fila();
-                fila.setId((filaitem.getInt("id")));
-                fila.setNome((filaitem.getString("nome")));
-                try {
-                    fila.setFigura((filaitem.getString("nm_figura")));
-                }catch(Exception e){
-                    fila.setFigura("ic_erp");
-                    e.printStackTrace();
-                }
+                fila.setId(filaItem.getInt("id"));
+                fila.setNome(filaItem.getString("nome"));
+                fila.setFigura(filaItem.getString("figura"));
                 chamado.setFila(fila);
                 chamados.add(chamado);
+
             }
 
-        }catch (JSONException e){
+        } catch (JSONException e) {
             e.printStackTrace();
             throw new IOException(e);
         }
+
+
         return chamados;
     }
 
-    public static ArrayList<Fila> buscarFilas(String url) throws IOException{
+    public static ArrayList<Fila> getFilas(String url) throws IOException {
         ArrayList<Fila> filas = new ArrayList<>();
         OkHttpClient client = new OkHttpClient();
+        DateFormat formatter = new SimpleDateFormat(Fila.DATE_PATTERN);
+
+        Log.println(Log.DEBUG,"url filas" , url);
 
         Request request = new Request.Builder()
                 .url(url)
@@ -102,25 +103,38 @@ public class ChamadoNetwork {
         Response response = client.newCall(request).execute();
         String json = response.body().string();
 
-        try{
+        Log.println(Log.DEBUG,"json filas" , json);
+
+        try {
             JSONArray lista = new JSONArray(json);
-            for(int i = 0; i < lista.length(); i++){
+            for (int i = 0; i < lista.length(); i++) {
                 JSONObject item = (JSONObject) lista.get(i);
                 Fila fila = new Fila();
                 fila.setId(item.getInt("id"));
                 fila.setNome(item.getString("nome"));
                 fila.setFigura(item.getString("figura"));
+                String sDataAtualizacao = (item.getString("dataAtualizacao"));
+                try {
+                    fila.setDataAtualizacao((Date) formatter.parse(sDataAtualizacao));
+                } catch (ParseException e) {
+                    fila.setDataAtualizacao(null);
+                }
                 filas.add(fila);
             }
-        } catch(JSONException e){
+        } catch (JSONException e) {
             e.printStackTrace();
             throw new IOException(e);
         }
+
+
         return filas;
+
     }
 
     public static Bitmap getFigura(String url) throws IOException{
         Bitmap img = null;
+
+        Log.println(Log.DEBUG,"url figuras" , url);
 
         OkHttpClient client = new OkHttpClient();
 
@@ -138,4 +152,5 @@ public class ChamadoNetwork {
 
         return img;
     }
+
 }

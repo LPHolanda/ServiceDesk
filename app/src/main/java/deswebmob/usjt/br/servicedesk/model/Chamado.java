@@ -8,6 +8,8 @@ import java.util.Date;
  */
 
 public class Chamado implements Serializable{
+    public final static String DATE_PATTERN = "dd-MM-yyyy";
+
     private int numero;
     private Date dataAbertura, dataFechamento;
     private String status, descricao;
@@ -25,52 +27,50 @@ public class Chamado implements Serializable{
         this.fila = fila;
     }
 
-    public Chamado(){
-
-    }
+    public Chamado(){}
 
     public int getNumero() {
         return numero;
-    }
-
-    public Date getDataAbertura() {
-        return dataAbertura;
-    }
-
-    public Date getDataFechamento() {
-        return dataFechamento;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public String getDescricao() {
-        return descricao;
-    }
-
-    public Fila getFila() {
-        return fila;
     }
 
     public void setNumero(int numero) {
         this.numero = numero;
     }
 
+    public Date getDataAbertura() {
+        return dataAbertura;
+    }
+
     public void setDataAbertura(Date dataAbertura) {
         this.dataAbertura = dataAbertura;
+    }
+
+    public Date getDataFechamento() {
+        return dataFechamento;
     }
 
     public void setDataFechamento(Date dataFechamento) {
         this.dataFechamento = dataFechamento;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
     public void setStatus(String status) {
         this.status = status;
     }
 
+    public String getDescricao() {
+        return descricao;
+    }
+
     public void setDescricao(String descricao) {
         this.descricao = descricao;
+    }
+
+    public Fila getFila() {
+        return fila;
     }
 
     public void setFila(Fila fila) {
@@ -79,6 +79,6 @@ public class Chamado implements Serializable{
 
     @Override
     public String toString() {
-        return fila.getNome() + ": " + descricao;
+        return fila.getNome()+": "+ descricao;
     }
 }

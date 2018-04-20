@@ -27,7 +27,7 @@ public class ListarChamadosActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_listar_chamados);
         final Intent intent = getIntent();
-        chamados =(ArrayList<Chamado>)intent.getSerializableExtra(MainActivity.CHAMADO);
+        chamados =(ArrayList<Chamado>)intent.getSerializableExtra(MainActivity.CHAMADOS);
 
         /*
              String nomeFila = intent.getStringExtra(MainActivity.FILA);
